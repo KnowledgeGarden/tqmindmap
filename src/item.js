@@ -1,3 +1,12 @@
+/**
+ * Appears to be the API for a node in the map
+ */
+/////////////////////////
+// A node should be able to be:
+//  * a node in a mindmap (it is now)
+//  * a stargate opening to another mindmap (drill-down map navigation)
+//  * a hyperlink to a different view - e.g. that node's topic in topic map
+/////////////////////////
 MM.Item = function() {
 	this._parent = null;
 	this._children = [];
@@ -113,7 +122,9 @@ MM.Item.prototype.fromJSON = function(data) {
 MM.Item.prototype.mergeWith = function(data) {
 	var dirty = 0;
 
-	if (this.getText() != data.text && !this._dom.text.contentEditable) { this.setText(data.text); }
+	if (this.getText() != data.text && !this._dom.text.contentEditable) { 
+		this.setText(data.text); 
+	}
 
 	if (this._side != data.side) { 
 		this._side = data.side;
@@ -270,6 +281,14 @@ MM.Item.prototype.setValue = function(value) {
 
 MM.Item.prototype.getValue = function() {
 	return this._value;
+}
+
+MM.Item.prototype.setHREF = function(value) {
+	this.setText(value);
+}
+
+MM.Item.prototype.getHREF = function() {
+	return this._href;
 }
 
 MM.Item.prototype.getComputedValue = function() {

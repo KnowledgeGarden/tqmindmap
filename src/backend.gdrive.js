@@ -1,3 +1,9 @@
+/**
+ * An example of how to use the MM.Backend shell
+ * to host an online backend
+ * These keys like apiKey, etc, could come in 
+ * from a config file
+ */
 MM.Backend.GDrive = Object.create(MM.Backend, {
 	id: {value: "gdrive"},
 	label: {value: "Google Drive"},

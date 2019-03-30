@@ -1,3 +1,6 @@
+/**
+ * Core Map API
+ */
 MM.Map = function(options) {
 	var o = {
 		root: "My Mind Map",

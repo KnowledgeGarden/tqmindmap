@@ -115,6 +115,19 @@ MM.Command.Value.execute = function() {
 	var action = new MM.Action.SetValue(item, isNaN(numValue) ? newValue : numValue);
 	MM.App.action(action);
 }
+MM.Command.Href = Object.create(MM.Command, {
+	label: {value: "Set HREF"},
+	//keys: {value: [{charCode: "v".charCodeAt(0), ctrlKey:false, metaKey:false}]}
+});
+MM.Command.Href.execute = function() {
+	var item = MM.App.current;
+	var oldValue = item.getHREF();
+	var newValue = prompt("Set item HREF", oldValue);
+	if (newValue == null) { return; }
+	if (!newValue.length) { newValue = null; }
+	var action = new MM.Action.SetHREF(item, newValue);
+	MM.App.action(action);
+}
 
 MM.Command.Yes = Object.create(MM.Command, {
 	label: {value: "Yes"},

@@ -4,14 +4,43 @@ MM.Backend.File = Object.create(MM.Backend, {
 	input: {value:document.createElement("input")}
 });
 
+//////////////////////
+//SAVE TestMap.mymind {
+//	"root": {
+//		"id": "kayormez",
+//		"text": "TestMap",
+//		"layout": "map",
+//		"children": [
+//			{
+//				"id": "rzgmikgl",
+//				"text": "Something To Play With",
+//				"side": "right"
+//			},
+//			{
+//				"id": "tnboseag",
+//				"text": "Something Else To Play With",
+//				"side": "left"
+//			},
+//			{
+//				"id": "jhhtbpej",
+//				"text": "Another Node",
+//				"side": "right"
+//			}
+//		]
+//	}
+//}
+//https://stackoverflow.com/questions/8310657/how-to-create-a-dynamic-file-link-for-download-in-javascript
+//////////////////////
 MM.Backend.File.save = function(data, name) {
+	//console.log('SAVE', name, data);
 	var link = document.createElement("a");
 	link.download = name;
 	link.href = "data:text/plain;base64," + btoa(unescape(encodeURIComponent(data)));
 	document.body.appendChild(link);
 	link.click();
 	link.parentNode.removeChild(link);
-
+	// promise is here so this can return promise
+	// as called in ui.backend.file.js save()
 	var promise = new Promise().fulfill();
 	return promise;
 }

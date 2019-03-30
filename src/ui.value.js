@@ -15,6 +15,9 @@ MM.UI.Value.prototype.handleEvent = function(e) {
 	var value = this._select.value;
 	if (value == "num") {
 		MM.Command.Value.execute();
+	} else if (value == "href") {
+		console.log("HREF");
+		MM.Command.Href.execute();
 	} else {
 		var action = new MM.Action.SetValue(MM.App.current, value || null);
 		MM.App.action(action);

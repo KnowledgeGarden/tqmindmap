@@ -161,6 +161,19 @@ MM.Action.SetText.prototype.undo = function() {
 	this._item.setValue(this._oldValue);
 }
 
+MM.Action.SetHREF = function(item, value) {
+	this._item = item;
+	this._href = value;
+	this._oldHref = item.getHREF();
+}
+MM.Action.SetHREF.prototype = Object.create(MM.Action.prototype);
+MM.Action.SetHREF.prototype.perform = function() {
+	this._item.setHREF(this._href);
+}
+MM.Action.SetHREF.prototype.undo = function() {
+	this._item.setHREF(this._oldHref);
+}
+
 MM.Action.SetValue = function(item, value) {
 	this._item = item;
 	this._value = value;

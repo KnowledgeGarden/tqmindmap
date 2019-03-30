@@ -297,6 +297,15 @@ MM.Repo = {
 		return o;
 	}
 }
+/**
+ * Appears to be the API for a node in the map
+ */
+/////////////////////////
+// A node should be able to be:
+//  * a node in a mindmap (it is now)
+//  * a stargate opening to another mindmap (drill-down map navigation)
+//  * a hyperlink to a different view - e.g. that node's topic in topic map
+/////////////////////////
 MM.Item = function() {
 	this._parent = null;
 	this._children = [];
@@ -412,7 +421,9 @@ MM.Item.prototype.fromJSON = function(data) {
 MM.Item.prototype.mergeWith = function(data) {
 	var dirty = 0;
 
-	if (this.getText() != data.text && !this._dom.text.contentEditable) { this.setText(data.text); }
+	if (this.getText() != data.text && !this._dom.text.contentEditable) { 
+		this.setText(data.text); 
+	}
 
 	if (this._side != data.side) { 
 		this._side = data.side;
@@ -569,6 +580,14 @@ MM.Item.prototype.setValue = function(value) {
 
 MM.Item.prototype.getValue = function() {
 	return this._value;
+}
+
+MM.Item.prototype.setHREF = function(value) {
+	this.setText(value);
+}
+
+MM.Item.prototype.getHREF = function() {
+	return this._href;
 }
 
 MM.Item.prototype.getComputedValue = function() {
@@ -921,6 +940,9 @@ MM.Item.prototype._findLinks = function(node) {
 		}
 	}
 }
+/**
+ * Core Map API
+ */
 MM.Map = function(options) {
 	var o = {
 		root: "My Mind Map",
@@ -1414,6 +1436,19 @@ MM.Action.SetText.prototype.perform = function() {
 MM.Action.SetText.prototype.undo = function() {
 	this._item.setText(this._oldText);
 	this._item.setValue(this._oldValue);
+}
+
+MM.Action.SetHREF = function(item, value) {
+	this._item = item;
+	this._href = value;
+	this._oldHref = item.getHREF();
+}
+MM.Action.SetHREF.prototype = Object.create(MM.Action.prototype);
+MM.Action.SetHREF.prototype.perform = function() {
+	this._item.setHREF(this._href);
+}
+MM.Action.SetHREF.prototype.undo = function() {
+	this._item.setHREF(this._oldHref);
 }
 
 MM.Action.SetValue = function(item, value) {
@@ -2057,6 +2092,19 @@ MM.Command.Value.execute = function() {
 
 	var numValue = parseFloat(newValue);
 	var action = new MM.Action.SetValue(item, isNaN(numValue) ? newValue : numValue);
+	MM.App.action(action);
+}
+MM.Command.Href = Object.create(MM.Command, {
+	label: {value: "Set HREF"},
+	//keys: {value: [{charCode: "v".charCodeAt(0), ctrlKey:false, metaKey:false}]}
+});
+MM.Command.Href.execute = function() {
+	var item = MM.App.current;
+	var oldValue = item.getHREF();
+	var newValue = prompt("Set item HREF", oldValue);
+	if (newValue == null) { return; }
+	if (!newValue.length) { newValue = null; }
+	var action = new MM.Action.SetHREF(item, newValue);
 	MM.App.action(action);
 }
 
@@ -3350,14 +3398,43 @@ MM.Backend.File = Object.create(MM.Backend, {
 	input: {value:document.createElement("input")}
 });
 
+//////////////////////
+//SAVE TestMap.mymind {
+//	"root": {
+//		"id": "kayormez",
+//		"text": "TestMap",
+//		"layout": "map",
+//		"children": [
+//			{
+//				"id": "rzgmikgl",
+//				"text": "Something To Play With",
+//				"side": "right"
+//			},
+//			{
+//				"id": "tnboseag",
+//				"text": "Something Else To Play With",
+//				"side": "left"
+//			},
+//			{
+//				"id": "jhhtbpej",
+//				"text": "Another Node",
+//				"side": "right"
+//			}
+//		]
+//	}
+//}
+//https://stackoverflow.com/questions/8310657/how-to-create-a-dynamic-file-link-for-download-in-javascript
+//////////////////////
 MM.Backend.File.save = function(data, name) {
+	//console.log('SAVE', name, data);
 	var link = document.createElement("a");
 	link.download = name;
 	link.href = "data:text/plain;base64," + btoa(unescape(encodeURIComponent(data)));
 	document.body.appendChild(link);
 	link.click();
 	link.parentNode.removeChild(link);
-
+	// promise is here so this can return promise
+	// as called in ui.backend.file.js save()
 	var promise = new Promise().fulfill();
 	return promise;
 }
@@ -3594,6 +3671,12 @@ MM.Backend.Firebase._login = function(type) {
 		return result.user;
 	});
 }
+/**
+ * An example of how to use the MM.Backend shell
+ * to host an online backend
+ * These keys like apiKey, etc, could come in 
+ * from a config file
+ */
 MM.Backend.GDrive = Object.create(MM.Backend, {
 	id: {value: "gdrive"},
 	label: {value: "Google Drive"},
@@ -3942,6 +4025,9 @@ MM.UI.Value.prototype.handleEvent = function(e) {
 	var value = this._select.value;
 	if (value == "num") {
 		MM.Command.Value.execute();
+	} else if (value == "href") {
+		console.log("HREF");
+		MM.Command.Href.execute();
 	} else {
 		var action = new MM.Action.SetValue(MM.App.current, value || null);
 		MM.App.action(action);
