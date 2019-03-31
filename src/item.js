@@ -288,7 +288,7 @@ MM.Item.prototype.setHREF = function(value) {
 }
 
 MM.Item.prototype.getHREF = function() {
-	return this._href;
+	return this.getText();
 }
 
 MM.Item.prototype.getComputedValue = function() {

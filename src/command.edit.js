@@ -115,6 +115,7 @@ MM.Command.Value.execute = function() {
 	var action = new MM.Action.SetValue(item, isNaN(numValue) ? newValue : numValue);
 	MM.App.action(action);
 }
+
 MM.Command.Href = Object.create(MM.Command, {
 	label: {value: "Set HREF"},
 	//keys: {value: [{charCode: "v".charCodeAt(0), ctrlKey:false, metaKey:false}]}
