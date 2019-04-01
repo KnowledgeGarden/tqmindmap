@@ -13,11 +13,18 @@ MM.UI.Value.prototype.update = function() {
 
 MM.UI.Value.prototype.handleEvent = function(e) {
 	var value = this._select.value;
-	if (value == "num") {
+	if (value === "num") {
+		//set Item's value to a number
 		MM.Command.Value.execute();
-	} else if (value == "href") {
+	} else if (value === "href") {
+		//Convert Item's text to an HREF
 		console.log("HREF");
 		MM.Command.Href.execute();
+	} else if (value === "nmap") {
+		//Convert Item's text to a link to a nested mindmap
+		//if it doesn't exist, create it
+		// This nodes label is that node's root topic
+		MM.Command.NestMap.execute();
 	} else {
 		var action = new MM.Action.SetValue(MM.App.current, value || null);
 		MM.App.action(action);

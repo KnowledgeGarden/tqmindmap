@@ -1,0 +1,24 @@
+{
+	"root": {
+		"id": "eaoytzwt",
+		"text": "Health Map<br>",
+		"layout": "graph-bottom",
+		"children": [
+			{
+				"id": "zjplfipr",
+				"text": "Diet",
+				"shape": "ellipse"
+			},
+			{
+				"id": "eufskfot",
+				"text": "Nutrition",
+				"shape": "ellipse"
+			},
+			{
+				"id": "xdoewknu",
+				"text": "<a href=\"#\" onclick=\"javascript:MM.Backend.File.boot('jwjmqwjx.mymind')\">Disease</a>",
+				"shape": "ellipse"
+			}
+		]
+	}
+}

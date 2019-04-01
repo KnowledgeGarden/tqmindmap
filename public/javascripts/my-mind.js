@@ -32,6 +32,10 @@ var MM = {
 		if (index > -1) { this._subscribers[message].splice(index, 1); }
 	},
 	
+	/**
+	 * @return a random character string 8 characters long
+	 * TODO consider raising that to 16
+	 */
 	generateId: function() {
 		var str = "";
 		for (var i=0;i<8;i++) {
@@ -587,7 +591,7 @@ MM.Item.prototype.setHREF = function(value) {
 }
 
 MM.Item.prototype.getHREF = function() {
-	return this._href;
+	return this.getText();
 }
 
 MM.Item.prototype.getComputedValue = function() {
@@ -942,10 +946,18 @@ MM.Item.prototype._findLinks = function(node) {
 }
 /**
  * Core Map API
+ * @param options
+ * @param initialLabel can be null or undefined
+ * <code>initialLabel</code> allows to make maps with
+ * root nodes with a given value
  */
-MM.Map = function(options) {
+MM.Map = function(options, initialLabel) {
+	var lbl = initialLabel;
+	if (!lbl) {
+		lbl = "My Mind Map";
+	}
 	var o = {
-		root: "My Mind Map",
+		root: lbl,
 		layout: MM.Layout.Map
 	}
 	for (var p in options) { o[p] = options[p]; }
@@ -1987,7 +1999,7 @@ MM.Command.Edit = Object.create(MM.Command, {
 MM.Command.Edit.execute = function() {
 	MM.App.current.startEditing();
 	MM.App.editing = true;
-}
+};
 
 MM.Command.Finish = Object.create(MM.Command, {
 	keys: {value: [{keyCode: 13, altKey:false, ctrlKey:false, shiftKey:false}]},
@@ -2002,7 +2014,7 @@ MM.Command.Finish.execute = function() {
 		var action = new MM.Action.RemoveItem(MM.App.current);
 	}
 	MM.App.action(action);
-}
+};
 
 MM.Command.Newline = Object.create(MM.Command, {
 	label: {value: "Line break"},
@@ -2018,7 +2030,7 @@ MM.Command.Newline.execute = function() {
 	range.insertNode(br);
 	range.setStartAfter(br);
 	MM.App.current.updateSubtree();
-}
+};
 
 MM.Command.Cancel = Object.create(MM.Command, {
 	editMode: {value: true},
@@ -2032,7 +2044,7 @@ MM.Command.Cancel.execute = function() {
 		var action = new MM.Action.RemoveItem(MM.App.current);
 		MM.App.action(action);
 	}
-}
+};
 
 MM.Command.Style = Object.create(MM.Command, {
 	editMode: {value: null},
@@ -2052,7 +2064,7 @@ MM.Command.Style.execute = function() {
 		this.execute();
 		MM.Command.Finish.execute();
 	}
-}
+};
 
 MM.Command.Bold = Object.create(MM.Command.Style, {
 	command: {value: "bold"},
@@ -2093,20 +2105,56 @@ MM.Command.Value.execute = function() {
 	var numValue = parseFloat(newValue);
 	var action = new MM.Action.SetValue(item, isNaN(numValue) ? newValue : numValue);
 	MM.App.action(action);
-}
+};
+
 MM.Command.Href = Object.create(MM.Command, {
 	label: {value: "Set HREF"},
 	//keys: {value: [{charCode: "v".charCodeAt(0), ctrlKey:false, metaKey:false}]}
 });
+
 MM.Command.Href.execute = function() {
 	var item = MM.App.current;
+	//fetch the label
 	var oldValue = item.getHREF();
-	var newValue = prompt("Set item HREF", oldValue);
+	//fetch a URL
+	var newValue = prompt("Set item URL", "");
 	if (newValue == null) { return; }
 	if (!newValue.length) { newValue = null; }
-	var action = new MM.Action.SetHREF(item, newValue);
+	var newHREF = "<a href=\""+newValue+"\">"+oldValue+"</a>";
+	var action = new MM.Action.SetHREF(item, newHREF);
 	MM.App.action(action);
-}
+};
+
+MM.Command.NestMap = Object.create(MM.Command, {
+	label: {value: "Set Nested Map"},
+	//keys: {value: [{charCode: "v".charCodeAt(0), ctrlKey:false, metaKey:false}]}
+});
+//////////////////////////
+//This has the task of checking to see if this node
+// already has a nestedMap -- an href is the label
+// If so, leave.
+// Otherwise, create a new map with a random ID for filename
+//   Use the Label as the new root node and create it in that map
+// Use the filename for the new file to make a Javascript HREF
+// and update the selected item
+// Can borrow code from backend.file.js
+//////////////////////////
+MM.Command.NestMap.execute = function() {
+	var item = MM.App.current;
+	//fetch the label
+	var theLabel = item.getText();
+	//we are forced, for the time being, to use the browser's
+	//saveAs
+	var fileName = MM.generateId() + ".mymind";
+	console.log("NM", fileName);
+	var newMap = new MM.Map({}, theLabel);
+	//var format = new MM.Format.JSON();
+	var json =  MM.Format.JSON.to(newMap);
+	MM.Backend.File.save(json, fileName);
+	var newHREF = "<a href=\"#\"  onclick=\"javascript:MM.Backend.File.boot('"+fileName+"')\">"+theLabel+"</a>";
+	var action = new MM.Action.SetHREF(item, newHREF);
+	MM.App.action(action);
+};
 
 MM.Command.Yes = Object.create(MM.Command, {
 	label: {value: "Yes"},
@@ -2117,7 +2165,7 @@ MM.Command.Yes.execute = function() {
 	var status = (item.getStatus() == "yes" ? null : "yes");
 	var action = new MM.Action.SetStatus(item, status);
 	MM.App.action(action);
-}
+};
 
 MM.Command.No = Object.create(MM.Command, {
 	label: {value: "No"},
@@ -2128,7 +2176,7 @@ MM.Command.No.execute = function() {
 	var status = (item.getStatus() == "no" ? null : "no");
 	var action = new MM.Action.SetStatus(item, status);
 	MM.App.action(action);
-}
+};
 
 MM.Command.Computed = Object.create(MM.Command, {
 	label: {value: "Computed"},
@@ -2139,7 +2187,7 @@ MM.Command.Computed.execute = function() {
 	var status = (item.getStatus() == "computed" ? null : "computed");
 	var action = new MM.Action.SetStatus(item, status);
 	MM.App.action(action);
-}
+};
 MM.Command.Select = Object.create(MM.Command, {
 	label: {value: "Move selection"},
 	keys: {value: [
@@ -3447,6 +3495,28 @@ MM.Backend.File.load = function() {
 	this.input.onchange = function(e) {
 		var file = e.target.files[0];
 		if (!file) { return; }
+		console.log("Load", file, file.name);
+		var reader = new FileReader();
+		reader.onload = function() { promise.fulfill({data:reader.result, name:file.name}); }
+		reader.onerror = function() { promise.reject(reader.error); }
+		reader.readAsText(file);
+	}.bind(this);
+
+	this.input.click();
+	return promise;
+}
+
+MM.Backend.File.boot = function(inFile) {
+	var vs = import('fs');
+	console.log("FS", fs);
+	var promise = new Promise();
+
+	this.input.type = "file";
+
+	this.input.onchange = function(e) {
+		var file = "../data/nestedmaps/"+inFile;
+		if (!file) { return; }
+		console.log("Boot", file, file.name);
 
 		var reader = new FileReader();
 		reader.onload = function() { promise.fulfill({data:reader.result, name:file.name}); }
@@ -4023,11 +4093,18 @@ MM.UI.Value.prototype.update = function() {
 
 MM.UI.Value.prototype.handleEvent = function(e) {
 	var value = this._select.value;
-	if (value == "num") {
+	if (value === "num") {
+		//set Item's value to a number
 		MM.Command.Value.execute();
-	} else if (value == "href") {
+	} else if (value === "href") {
+		//Convert Item's text to an HREF
 		console.log("HREF");
 		MM.Command.Href.execute();
+	} else if (value === "nmap") {
+		//Convert Item's text to a link to a nested mindmap
+		//if it doesn't exist, create it
+		// This nodes label is that node's root topic
+		MM.Command.NestMap.execute();
 	} else {
 		var action = new MM.Action.SetValue(MM.App.current, value || null);
 		MM.App.action(action);
@@ -4263,6 +4340,10 @@ MM.UI.IO.prototype.handleMessage = function(message, publisher) {
 	}
 }
 
+/**
+ * Called by MM.Command.Load with "load"
+ * @param mode
+ */
 MM.UI.IO.prototype.show = function(mode) {
 	this._mode = mode;
 	this._node.classList.add("visible");
@@ -4492,9 +4573,10 @@ MM.UI.Backend.File.load = function() {
 }
 
 MM.UI.Backend.File._loadDone = function(data) {
+	var json = null;
 	try {
 		var format = MM.Format.getByName(data.name) || MM.Format.JSON;
-		var json = format.from(data.data);
+		json = format.from(data.data);
 	} catch (e) { 
 		this._error(e);
 	}
@@ -5269,7 +5351,7 @@ MM.App = {
 	portSize: [0, 0],
 	map: null,
 	ui: null,
-	io: null,
+	io: null, // initialized with MM.UI.IO()
 	help: null,
 	_port: null,
 	_throbber: null,

@@ -72,6 +72,10 @@ MM.UI.IO.prototype.handleMessage = function(message, publisher) {
 	}
 }
 
+/**
+ * Called by MM.Command.Load with "load"
+ * @param mode
+ */
 MM.UI.IO.prototype.show = function(mode) {
 	this._mode = mode;
 	this._node.classList.add("visible");

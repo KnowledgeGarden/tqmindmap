@@ -31,6 +31,10 @@ var MM = {
 		if (index > -1) { this._subscribers[message].splice(index, 1); }
 	},
 	
+	/**
+	 * @return a random character string 8 characters long
+	 * TODO consider raising that to 16
+	 */
 	generateId: function() {
 		var str = "";
 		for (var i=0;i<8;i++) {

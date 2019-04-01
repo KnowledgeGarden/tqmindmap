@@ -46,9 +46,10 @@ MM.UI.Backend.File.load = function() {
 }
 
 MM.UI.Backend.File._loadDone = function(data) {
+	var json = null;
 	try {
 		var format = MM.Format.getByName(data.name) || MM.Format.JSON;
-		var json = format.from(data.data);
+		json = format.from(data.data);
 	} catch (e) { 
 		this._error(e);
 	}

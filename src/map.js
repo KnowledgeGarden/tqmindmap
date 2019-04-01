@@ -1,9 +1,17 @@
 /**
  * Core Map API
+ * @param options
+ * @param initialLabel can be null or undefined
+ * <code>initialLabel</code> allows to make maps with
+ * root nodes with a given value
  */
-MM.Map = function(options) {
+MM.Map = function(options, initialLabel) {
+	var lbl = initialLabel;
+	if (!lbl) {
+		lbl = "My Mind Map";
+	}
 	var o = {
-		root: "My Mind Map",
+		root: lbl,
 		layout: MM.Layout.Map
 	}
 	for (var p in options) { o[p] = options[p]; }

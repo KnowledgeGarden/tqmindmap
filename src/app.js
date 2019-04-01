@@ -41,7 +41,7 @@ MM.App = {
 	portSize: [0, 0],
 	map: null,
 	ui: null,
-	io: null,
+	io: null, // initialized with MM.UI.IO()
 	help: null,
 	_port: null,
 	_throbber: null,

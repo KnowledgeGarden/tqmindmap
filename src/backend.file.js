@@ -53,6 +53,27 @@ MM.Backend.File.load = function() {
 	this.input.onchange = function(e) {
 		var file = e.target.files[0];
 		if (!file) { return; }
+		console.log("Load", file, file.name);
+		var reader = new FileReader();
+		reader.onload = function() { promise.fulfill({data:reader.result, name:file.name}); }
+		reader.onerror = function() { promise.reject(reader.error); }
+		reader.readAsText(file);
+	}.bind(this);
+
+	this.input.click();
+	return promise;
+}
+
+MM.Backend.File.boot = function(inFile) {
+
+	var promise = new Promise();
+
+	this.input.type = "file";
+
+	this.input.onchange = function(e) {
+		var file = "../data/nestedmaps/"+inFile;
+		if (!file) { return; }
+		console.log("Boot", file, file.name);
 
 		var reader = new FileReader();
 		reader.onload = function() { promise.fulfill({data:reader.result, name:file.name}); }
