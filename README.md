@@ -17,3 +17,6 @@ To run:
 
 A manual is found here:
 * https://github.com/ondras/my-mind/wiki/My-Mind-Manual
+
+A running design/planning log is found here:
+* https://docs.google.com/document/d/1e69_Tuj5GKoEOJketjU9_nk--dCrGH2IusxA3wvEJHc/edit?usp=sharing
