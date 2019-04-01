@@ -3507,8 +3507,7 @@ MM.Backend.File.load = function() {
 }
 
 MM.Backend.File.boot = function(inFile) {
-	var vs = import('fs');
-	console.log("FS", fs);
+
 	var promise = new Promise();
 
 	this.input.type = "file";
